@@ -23,10 +23,21 @@ fn main() {
         return;
     };
     let wav_files = get_files_from_directory(&directory,".wav");
-    let Some(wav_files) = wav_files else {
+    let Some(mut wav_files) = wav_files else {
         println!("指定されたディレクトリにwavファイルが存在しません。");
         return;
     };
+    // ファイル名でソート
+    wav_files.sort_by(|a, b| {
+        let a_name_binding = a.file_name();
+        let b_name_binding = b.file_name();
+
+        let a_name = a_name_binding.to_string_lossy();
+        let b_name = b_name_binding.to_string_lossy();
+
+        // まず文字列の長さで比較し、同じ長さなら辞書順で比較
+        a_name.len().cmp(&b_name.len()).then(a_name.cmp(&b_name))
+    });
 
     // テキストファイルから新しいwavファイル名を取得
     let name_map= get_new_wav_filename_map(txt_files);
@@ -131,6 +142,8 @@ fn rename_wav_files(directory: &str, wav_files: Vec<DirEntry>, name_map: HashMap
         let Some(filename) = filename.to_str() else {
             return;
         };
+
+        println!("{}", filename);
         // 拡張子を削除
         let item_name = filename.replace(".wav", "");
 
